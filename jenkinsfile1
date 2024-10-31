@@ -1,0 +1,40 @@
+pipeline {
+  agent { label 'maven' }
+  stages {
+	stage('git') {
+		  steps {
+			git url: 'https://github.com/spring-projects/spring-petclinic.git', branch: 'main'
+		  }
+	}
+	stage('build with sonar') {
+		steps {
+			withSonarQubeEnv(credentialsId: 'SONER-SPC-ID', installationName: 'SonerQube-jenkins') { // You can override the credential to be used
+				sh 'mvn clean package org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -D sonar.organization=pratik-ahire-git -D sonar.projectKey=48a3b1f80396595820bbf36b4323bc03194acfda'
+			}
+		
+			junit testResults: '**/surefire-reports/*.xml'
+			archive '**/target/spring-petclinic-*.jar'
+		}
+	}
+	stage("Quality Gate") {
+		steps {
+			timeout(time: 1, unit: 'HOURS') {
+				// Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+				// true = set pipeline to UNSTABLE, false = don't
+				waitForQualityGate abortPipeline: true
+			}
+		}
+	}
+	
+  }
+  post {
+	success {
+		mail subject: 'Build Success', to: 'artdevops0@gmail.com', body: 'Build Success'
+	}
+	failure {
+		mail subject: 'Build Failed', to: 'artdevops0@gmail.com', body: 'Build Failed'
+	}
+		
+  }
+    
+}
