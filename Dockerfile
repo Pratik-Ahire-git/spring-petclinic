@@ -1,7 +1,7 @@
 # building the java code
 FROM maven:3.9.7-eclipse-temurin-17 AS build
 
-RUN cd spring-petclinic && mvn clean package
+RUN mvn clean package
 
 # running the application
 FROM amazoncorretto:17-alpine-jdk
