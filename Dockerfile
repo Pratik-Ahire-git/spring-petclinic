@@ -12,6 +12,7 @@ LABEL project="practice spring-petclinic"
 RUN mkdir /spc && chown nobody /spc
 USER nobody
 WORKDIR /spc
-COPY target/*.jar /spc/spring-petclinic.jar
+COPY --from=build --chown=nobody /spring-petclinic/target/*.jar /spc/spring-petclinic.jar
+
 EXPOSE 8080
 CMD ["java", "-jar", "spring-petclinic.jar"]
